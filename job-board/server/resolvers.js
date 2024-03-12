@@ -26,7 +26,6 @@ export const resolvers = {
       if (!user) {
         throw unauthorizedError("Missing authentication");
       }
-      const companyId = "FjcJCHJALA4i"; // TODO set based on user
       return createJob({ companyId: user.companyId, title, description });
     },
     deleteJob: async (_root, { id }, { user }) => {
@@ -39,8 +38,15 @@ export const resolvers = {
       }
       return job;
     },
-    updateJob: (_root, { input: { id, title, description } }) => {
-      return updateJob({ id, title, description });
+    updateJob: async (_root, { input: { id, title, description } }, { user }) => {
+      if (!user) {
+        throw unauthorizedError("Missing authentication");
+      }
+      const job = await updateJob({ id, companyId: user.companyId, title, description });
+      if (!job) {
+        throw notFoundError("No Job found with id " + id);
+      }
+      return job;
     },
   },
 
