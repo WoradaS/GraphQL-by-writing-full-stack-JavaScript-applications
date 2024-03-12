@@ -1,14 +1,20 @@
-import { GraphQLClient, gql } from "graphql-request";
-import { getAccessToken } from '../auth';
+import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
+import { GraphQLClient } from "graphql-request";
+import { getAccessToken } from "../auth";
 
-const client = new GraphQLClient('http://localhost:9000/graphql', {
+const client = new GraphQLClient("http://localhost:9000/graphql", {
   headers: () => {
     const accessToken = getAccessToken();
     if (accessToken) {
-      return { 'Authorization': `Bearer ${accessToken}` };
+      return { Authorization: `Bearer ${accessToken}` };
     }
     return {};
   },
+});
+
+const apolloClient = new ApolloClient({
+  uri: 'http://localhost:9000/graphql',
+  cache: new InMemoryCache(),
 });
 
 export async function createJob({ title, description }) {
