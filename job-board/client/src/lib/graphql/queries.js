@@ -18,35 +18,36 @@ const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const jobDetailFragment = gql`
+  fragment JobDetail on Job {
+    id
+    date
+    title
+    company {
+      id
+      name
+    }
+    description
+  }
+`;
+
 const jobByIdQuery = gql`
   query JobById($id: ID!) {
     job(id: $id) {
-      id
-      date
-      title
-      company {
-        id
-        name
-      }
-      description
+      ...JobDetail
     }
   }
+  ${jobDetailFragment}
 `;
 
 export async function createJob({ title, description }) {
   const mutation = gql`
     mutation CreateJob($input: CreateJobInput!) {
       job: createJob(input: $input) {
-        id
-        date
-        title
-        company {
-          id
-          name
-        }
-        description
+        ...JobDetail
       }
     }
+    ${jobDetailFragment}
   `;
   const { data } = await apolloClient.mutate({
     mutation,
@@ -108,7 +109,7 @@ export async function getJobs() {
   `;
   const { data } = await apolloClient.query({
     query,
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
   });
   return data.jobs;
 }
